@@ -23,6 +23,10 @@
   width: 100%;
 }
 
+path:focus {
+  outline: none;
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;

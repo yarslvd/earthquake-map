@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, Tooltip, CircleMarker } from 'react-leaflet';
+import { MapContainer, TileLayer, Tooltip, CircleMarker, useMapEvents } from 'react-leaflet';
 import axios from 'axios';
 
 import { pointTypes } from './types/types';
@@ -26,7 +26,7 @@ function App() {
   return (
     <div>
       <MapContainer
-        center={position}
+        center={[49.9935, 36.2304]}
         zoom={12}
         minZoom={4}
         maxBounds={[[90, -180], [-90, 180]]}
@@ -34,7 +34,7 @@ function App() {
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          url="https://api.maptiler.com/maps/outdoor-v2/{z}/{x}/{y}.png?key=cFuvfvmemoUFlzG1zCrM"
         />
         {results && results.features.map((el: pointTypes) => (
             <CircleMarker
@@ -44,7 +44,8 @@ function App() {
               radius={Math.pow(2, el.properties.mag) / 2}
             >
               <Tooltip>
-                {`${el.properties.place || 'No exact location'} - ${el.properties.mag}`}
+                <h4>{el.properties.place || 'No exact location'}</h4>
+                {`Magnitude: ${el.properties.mag}`}
               </Tooltip>
             </CircleMarker>
           ))}
