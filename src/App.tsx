@@ -1,55 +1,60 @@
-import { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, Tooltip, CircleMarker, useMapEvents } from 'react-leaflet';
+import { useState, useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
 import axios from 'axios';
 
-import { pointTypes } from './types/types';
+import Map from './Map';
 
 function App() {
-  const [position, setPosition] = useState<Number[]>([49.9935, 36.2304]);
   const [results, setResults] = useState<any>();
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [date, setDate] = useState<string[]>((new Date().toLocaleDateString()).split('.'));
+
+  const firstUpdate: {current: boolean} = useRef(true);
 
   useEffect(() => {
-    const date = (new Date().toLocaleDateString()).split('.');
+    let mounted = true;
 
-    axios.get(`https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=${date[2]}-${date[1]}-${date[0]}&minmagnitude=3`)
-      .then(res => {
-        console.log(res.data);
-        setResults(res.data);
-      })
-      .catch(err => console.log(err));
-    navigator.geolocation.getCurrentPosition(({ coords }) => {
-      setPosition([coords.latitude, coords.longitude]);
-    });
+    if(firstUpdate.current) {
+      firstUpdate.current = false;
+      axios.get(`https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=${date[2]}-${date[1]}-${date[0] - 17}&minmagnitude=3`)
+        .then(res => {
+          setResults(res.data);
+        })
+        .catch(err => console.error(err));
+    }
+
+    const interval = setInterval(() => {
+      axios.get(`https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=${date[2]}-${date[1]}-${date[0] - 17}&minmagnitude=3`)
+        .then(res => {
+          console.log(res.data);
+          setResults(res.data);
+        })
+        .catch(err => console.error(err));
+    }, 10000);
+
+    return () => {
+      clearInterval(interval);
+      mounted = false;
+    }
 
   }, []);
 
   return (
-    <div>
-      <MapContainer
-        center={[49.9935, 36.2304]}
-        zoom={12}
-        minZoom={4}
-        maxBounds={[[90, -180], [-90, 180]]}
-        className="map-container"
-      >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://api.maptiler.com/maps/outdoor-v2/{z}/{x}/{y}.png?key=cFuvfvmemoUFlzG1zCrM"
-        />
-        {results && results.features.map((el: pointTypes) => (
-            <CircleMarker
-              center={[el.geometry.coordinates[1], el.geometry.coordinates[0]]}
-              key={el.id}
-              pathOptions={{ fillColor: 'red', color: '#ff5959' }}
-              radius={Math.pow(2, el.properties.mag) / 2}
-            >
-              <Tooltip>
-                <h4>{el.properties.place || 'No exact location'}</h4>
-                {`Magnitude: ${el.properties.mag}`}
-              </Tooltip>
-            </CircleMarker>
-          ))}
-      </MapContainer>
+    <div style={{ position: 'relative' }}>
+      <div className='container'>
+        {results && <Map {...results}/>}
+        <motion.div
+          className='info parent'
+          layout
+          initial={{ borderRadius: 50 }}
+          data-isOpen={isOpen}
+          onClick={() => setIsOpen(!isOpen)}
+        >
+          <motion.div layout className="child">
+            <h1>{results && results.features.length}</h1>
+          </motion.div>
+        </motion.div>
+      </div>
     </div>
   );
 }

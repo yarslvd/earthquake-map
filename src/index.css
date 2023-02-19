@@ -27,6 +27,47 @@ path:focus {
   outline: none;
 }
 
+.container {
+
+}
+
+.info {
+  position: absolute;   
+  width: 265px;
+  height: 500px;
+  z-index: 999;
+  background-color: #f9f9f9;
+  left: 20px;
+  bottom: 20px;
+  border-radius: 20px;
+}
+
+.info h1 {
+  color: #000;
+}
+
+.parent {
+  background: white;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.parent[data-isOpen="true"] {
+  width: 400px;
+  height: 200px;
+}
+
+.child[data-isOpen="false"] {
+  width: 40px;
+  height: 40px;
+  background: #f107a3;
+  border-radius: 50%;
+  display: block;
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
