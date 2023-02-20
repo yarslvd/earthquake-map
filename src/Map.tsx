@@ -1,7 +1,12 @@
-import { MapContainer, TileLayer, Tooltip, CircleMarker } from 'react-leaflet';
-import { pointTypes } from './types/types';
+import { useSelector } from 'react-redux';
+import { MapContainer, TileLayer, Tooltip, CircleMarker } from 'react-leaflet';;
 
-const Map = (results: any) => {
+import { pointTypes } from './types/types';
+import SearchField from './SearchField';
+
+const Map = () => {
+    const results = useSelector((state: any) => state.earthquakeApi.queries[Object.keys(state.earthquakeApi.queries)[0]].data);
+
     return (
         <MapContainer
             center={[49.9935, 36.2304]}
@@ -27,6 +32,7 @@ const Map = (results: any) => {
                 </Tooltip>
                 </CircleMarker>
             ))}
+            <SearchField apiKey={'pk.eyJ1IjoieWFyc2x2ZCIsImEiOiJjbGVkNWliZnowM3M3M3ZwMmFrcjB6ZXluIn0.8ipyFZInCxMaSuchTH3fNA'} />
       </MapContainer>
     );
 };
